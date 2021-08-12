@@ -16,35 +16,45 @@ public class Operator {
         Publisher<Integer> originPublisher = getOriginPublisher();
         Publisher<Integer> mapPublisher = getMapPublisher(originPublisher, i -> i + 10);
         Publisher<Integer> negativePublisher = getMapPublisher(mapPublisher, i -> i * -1);
+        Publisher<Integer> sumPublisher = getSumPublisher(negativePublisher);
         Subscriber<Integer> logSubscriber = getLogSubscriber();
 
 //        originPublisher.subscribe(logSubscriber);
-        negativePublisher.subscribe(logSubscriber);
+//        negativePublisher.subscribe(logSubscriber);
+        sumPublisher.subscribe(logSubscriber);
     }
 
     static Publisher<Integer> getMapPublisher(Publisher<Integer> originPublisher, Function<Integer, Integer> f) {
         return new Publisher<Integer>() {
             @Override
             public void subscribe(Subscriber<? super Integer> originSubscriber) {
-                originPublisher.subscribe(new Subscriber<Integer>() {
+                originPublisher.subscribe(new DelegateSubscriber(originSubscriber) {
                     @Override
-                    public void onSubscribe(Subscription s) {
-                        originSubscriber.onSubscribe(s);
+                    public void onNext(Integer integer) {
+                        super.onNext(f.apply(integer));
                     }
+                });
+            }
+        };
+    }
+
+    static Publisher<Integer> getSumPublisher(Publisher<Integer> originPublisher) {
+        return new Publisher<Integer>() {
+            @Override
+            public void subscribe(Subscriber<? super Integer> originSubscriber) {
+                originPublisher.subscribe(new DelegateSubscriber(originSubscriber) {
+
+                    int sum = 0;
 
                     @Override
                     public void onNext(Integer integer) {
-                        originSubscriber.onNext(f.apply(integer));
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        originSubscriber.onError(t);
+                        sum += integer;
                     }
 
                     @Override
                     public void onComplete() {
-                        originSubscriber.onComplete();
+                        super.onNext(sum);
+                        super.onComplete();
                     }
                 });
             }
