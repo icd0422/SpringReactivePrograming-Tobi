@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class PullAndPush {
@@ -48,6 +50,8 @@ public class PullAndPush {
     }
 
     public static void push() {
+        log.debug("start");
+
         Observer observer = new Observer() {
             @Override
             public void update(Observable o, Object arg) {
@@ -57,7 +61,11 @@ public class PullAndPush {
 
         IntObservable intObservable = new IntObservable();
         intObservable.addObserver(observer);
-        intObservable.run();
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(intObservable);
+
+        log.debug("end");
     }
 
     static class IntObservable extends Observable implements Runnable {
