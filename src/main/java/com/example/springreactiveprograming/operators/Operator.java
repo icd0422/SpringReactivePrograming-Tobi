@@ -5,6 +5,7 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,12 +17,14 @@ public class Operator {
         Publisher<Integer> originPublisher = getOriginPublisher();
         Publisher<Integer> mapPublisher = getMapPublisher(originPublisher, i -> i + 10);
         Publisher<Integer> negativePublisher = getMapPublisher(mapPublisher, i -> i * -1);
-        Publisher<Integer> sumPublisher = getSumPublisher(negativePublisher);
+//        Publisher<Integer> sumPublisher = getSumPublisher(negativePublisher);
+        Publisher<Integer> reducePublisher = getReducePublisher(negativePublisher, 0, (a, b) -> a + b);
         Subscriber<Integer> logSubscriber = getLogSubscriber();
 
 //        originPublisher.subscribe(logSubscriber);
 //        negativePublisher.subscribe(logSubscriber);
-        sumPublisher.subscribe(logSubscriber);
+//        sumPublisher.subscribe(logSubscriber);
+        reducePublisher.subscribe(logSubscriber);
     }
 
     static Publisher<Integer> getMapPublisher(Publisher<Integer> originPublisher, Function<Integer, Integer> f) {
@@ -54,6 +57,29 @@ public class Operator {
                     @Override
                     public void onComplete() {
                         super.onNext(sum);
+                        super.onComplete();
+                    }
+                });
+            }
+        };
+    }
+
+    static Publisher<Integer> getReducePublisher(Publisher<Integer> originPublisher, Integer init, BiFunction<Integer, Integer, Integer> bf) {
+        return new Publisher<Integer>() {
+            @Override
+            public void subscribe(Subscriber<? super Integer> originSubscriber) {
+                originPublisher.subscribe(new DelegateSubscriber(originSubscriber) {
+
+                    int result = init;
+
+                    @Override
+                    public void onNext(Integer integer) {
+                        result = bf.apply(result, integer);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        super.onNext(result);
                         super.onComplete();
                     }
                 });
