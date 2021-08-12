@@ -24,13 +24,17 @@ public class PublishAndSubscribe {
 
                     @Override
                     public void request(long n) {
-                        while (n-- > 0) {
-                            if (iterator.hasNext()) {
-                                subscriber.onNext(iterator.next());
-                            } else {
-                                subscriber.onComplete();
-                                break;
+                        try {
+                            while (n-- > 0) {
+                                if (iterator.hasNext()) {
+                                    subscriber.onNext(iterator.next());
+                                } else {
+                                    subscriber.onComplete();
+                                    break;
+                                }
                             }
+                        } catch (Exception e) {
+                            subscriber.onError(e);
                         }
                     }
 
@@ -52,11 +56,12 @@ public class PublishAndSubscribe {
             @Override
             public void onNext(Object o) {
                 log.debug("onNext : {}", o);
+                throw new RuntimeException();
             }
 
             @Override
             public void onError(Throwable t) {
-
+                log.debug("onError");
             }
 
             @Override
