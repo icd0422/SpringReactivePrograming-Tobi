@@ -3,12 +3,18 @@ package com.example.springreactiveprograming.duality;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
 
 @Slf4j
 public class PullAndPush {
 
     public static void main(String[] args) {
-        pull();
+//        pull();
+        push();
+//        옵져버 패턴의 한계
+//        1.Complete??
+//        2.Error??
     }
 
     public static void pull() {
@@ -38,6 +44,29 @@ public class PullAndPush {
         Iterator<Integer> iterator = iterableUntilTen.iterator();
         while (iterator.hasNext()) {
             log.debug(String.valueOf(iterator.next()));
+        }
+    }
+
+    public static void push() {
+        Observer observer = new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                log.debug(arg.toString());
+            }
+        };
+
+        IntObservable intObservable = new IntObservable();
+        intObservable.addObserver(observer);
+        intObservable.run();
+    }
+
+    static class IntObservable extends Observable implements Runnable {
+        @Override
+        public void run() {
+            for (int i = 1; i <= 10; i++) {
+                setChanged();
+                notifyObservers(i);
+            }
         }
     }
 }
