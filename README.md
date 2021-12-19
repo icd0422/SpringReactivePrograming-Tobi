@@ -11,3 +11,8 @@
 8. WebFlux : https://www.youtube.com/watch?v=ScH7NZU_zvk&list=PLv-xDnFD-nnmof-yoZQN8Fs2kVljIuFyC&index=3
 9. Mono의 동작방식과 block() : https://www.youtube.com/watch?v=LK6NRV8tZBM&list=PLv-xDnFD-nnmof-yoZQN8Fs2kVljIuFyC&index=2
 10. Flux의 특징과 활용방법 : https://www.youtube.com/watch?v=bc4wTgA_2Xk&list=PLv-xDnFD-nnmof-yoZQN8Fs2kVljIuFyC&index=1
+
+
+
+reactive streams : https://github.com/reactive-streams/reactive-streams-jvm
+<img width="711" alt="reactiveFlow" src="https://user-images.githubusercontent.com/37685627/146661525-0dcbb740-5d27-4cfc-9807-89ac1f1d7219.png">
